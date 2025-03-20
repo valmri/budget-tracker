@@ -5,5 +5,5 @@ export default defineConfig({
     typescript: true,
     vitest: true,
   },
-  ignore: ["eslint.config.js", "prettier.config.js"],
+  ignore: ["eslint.config.js", "prettier.config.js", "vite.config.ts"],
 });
