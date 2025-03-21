@@ -1,6 +1,9 @@
 import { defineConfig } from "@aureldvx/eslint";
 
 export default defineConfig({
+  coreRules: {
+    stylistic: false,
+  },
   plugins: {
     typescript: true,
     vitest: true,

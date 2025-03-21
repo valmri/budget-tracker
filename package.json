@@ -22,6 +22,7 @@
 		"vite": "6.2.2"
 	},
 	"dependencies": {
+		"@fontsource-variable/geist-mono": "^5.2.5",
 		"@tailwindcss/vite": "^4.0.14",
 		"tailwindcss": "^4.0.14"
 	}
