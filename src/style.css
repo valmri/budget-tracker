@@ -1,5 +1,11 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --font-sans: "Geist Mono Variable", monospace;
+	--font-sans: 'Geist Mono Variable', monospace;
+}
+
+@layer base {
+	dialog {
+		margin: auto;
+	}
 }
