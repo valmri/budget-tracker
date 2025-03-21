@@ -1,6 +1,11 @@
-import tailwindcss from "@tailwindcss/vite";
-import { defineConfig } from "vite";
+/// <reference types="vitest" />
+
+import tailwindcss from '@tailwindcss/vite';
+import { defineConfig } from 'vite';
 
 export default defineConfig({
-  plugins: [tailwindcss()],
+	test: {
+		environment: 'happy-dom',
+	},
+	plugins: [tailwindcss()],
 });
