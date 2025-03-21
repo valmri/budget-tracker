@@ -1,11 +1,12 @@
 export function renderModal() {
-	return `<button
-				type="button"
-				class="my-6 w-full rounded bg-indigo-600 p-3 text-center text-indigo-50 transition-colors hover:bg-indigo-700"
-				data-modal-id="add-operation-modal"
-			>
-				Ajouter une opération
-			</button>
+	const modalTrigger = document.createElement('button');
+	modalTrigger.type = 'button';
+	modalTrigger.className =
+		'my-6 w-full rounded bg-indigo-600 p-3 text-center text-indigo-50 transition-colors hover:bg-indigo-700';
+	modalTrigger.dataset['modalId'] = 'add-operation-modal';
+	modalTrigger.textContent = 'Ajouter une opération';
+
+	return `
       <dialog
 				id="add-operation-modal"
 				class="w-full max-w-lg rounded shadow-sm backdrop:bg-slate-700 backdrop:opacity-30"

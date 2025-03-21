@@ -13,7 +13,7 @@ if (!root) {
 }
 
 root.insertAdjacentHTML('afterbegin', renderModal());
-root.insertAdjacentHTML('afterbegin', renderHeading());
+root.insertAdjacentElement('afterbegin', renderHeading());
 root.insertAdjacentHTML('beforeend', renderOperationHistory());
 
 function manageDialogs() {

@@ -1,3 +1,7 @@
 export function renderHeading() {
-	return `<h1 class="text-2xl">Budget Tracker</h1>`;
+	const heading = document.createElement('h1');
+	heading.classList.add('text-2xl');
+	heading.textContent = 'Budget Tracker';
+
+	return heading;
 }
