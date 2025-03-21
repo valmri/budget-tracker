@@ -1,3 +1,5 @@
+const forbiddenAttributes = ['class', 'switch', 'case', 'break', 'continue', 'return'] as const;
+
 export function createElement(
 	tagName: keyof HTMLElementTagNameMap,
 	attributes: Record<string, string | boolean>,
@@ -7,8 +9,24 @@ export function createElement(
 	const element = document.createElement(tagName);
 
 	for (let [key, value] of Object.entries(attributes)) {
+		if (forbiddenAttributes.includes(key as never)) {
+			throw new Error(`Bad attribute used : ${key}`);
+		}
+
+		if (value === false) {
+			continue;
+		}
+
 		if (value === true) {
 			element.setAttribute(key, key);
+
+			continue;
+		}
+
+		if (key === 'className') {
+			element.className = value;
+
+			continue;
 		}
 
 		if (typeof value === 'string') {
@@ -40,10 +58,3 @@ export function createElement(
 
 	throw new TypeError('Unexpected child');
 }
-
-createElement(
-	'details',
-	{ open: true, className: 'coucou' },
-	{ click: (event) => console.log({ event }) },
-	'mon contenu',
-);

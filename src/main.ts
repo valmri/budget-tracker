@@ -2,9 +2,7 @@
 import '@fontsource-variable/geist-mono';
 
 import './style.css';
-import { renderHeading } from './heading';
-import { renderModal } from './modal';
-import { renderOperationHistory } from './table';
+import { createElement } from './utils';
 
 const root = document.querySelector<HTMLElement>('#root');
 
@@ -12,46 +10,24 @@ if (!root) {
 	throw new Error('Root element not found');
 }
 
-root.insertAdjacentHTML('afterbegin', renderModal());
-root.insertAdjacentElement('afterbegin', renderHeading());
-root.insertAdjacentHTML('beforeend', renderOperationHistory());
+function App() {
+	const fragment = document.createDocumentFragment();
 
-function manageDialogs() {
-	const triggers = [...document.querySelectorAll<HTMLButtonElement>('button[data-modal-id]')];
+	fragment.append(
+		createElement(
+			'h1',
+			{
+				className: 'text-2xl',
+			},
+			{},
+			'Budget Tracker',
+		),
+	);
 
-	if (triggers.length === 0) {
-		return;
-	}
+	// fragment.append(Modal());
+	// fragment.append(OperationTable());
 
-	for (let trigger of triggers) {
-		const dialogId = trigger.dataset['modalId'];
-
-		if (!dialogId) {
-			continue;
-		}
-
-		const dialog = document.querySelector<HTMLDialogElement>(`#${dialogId}`);
-
-		if (!dialog) {
-			continue;
-		}
-
-		const closeTrigger = dialog.querySelector<HTMLButtonElement>('button[data-close]');
-
-		if (!closeTrigger) {
-			continue;
-		}
-
-		trigger.addEventListener('click', (event: MouseEvent) => {
-			event.preventDefault();
-			dialog.showModal();
-		});
-
-		closeTrigger.addEventListener('click', (event) => {
-			event.preventDefault();
-			dialog.close();
-		});
-	}
+	return fragment;
 }
 
-manageDialogs();
+root.append(App());
