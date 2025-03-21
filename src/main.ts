@@ -2,6 +2,7 @@
 import '@fontsource-variable/geist-mono';
 
 import './style.css';
+import { Modal } from './components/modal';
 import { createElement } from './utils';
 
 const root = document.querySelector<HTMLElement>('#root');
@@ -24,7 +25,7 @@ function App() {
 		),
 	);
 
-	// fragment.append(Modal());
+	fragment.append(Modal());
 	// fragment.append(OperationTable());
 
 	return fragment;
