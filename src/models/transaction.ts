@@ -1,7 +1,7 @@
 import { v7 as uuidV7 } from 'uuid';
 
 export type TransactionType = 'expense' | 'income';
-export type Currency = 'EUR' | 'DOL';
+export type Currency = 'EUR' | 'USD';
 
 export interface TransactionInterface {
 	id: string;

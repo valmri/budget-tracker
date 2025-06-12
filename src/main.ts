@@ -14,8 +14,9 @@ if (!root) {
 const storage = new InMemoryStorage();
 
 const calculator = new Calculator(storage, 1_000);
+await calculator.fetchChangeRates();
 
-storage.create({
+const t1 = storage.create({
 	amount: 25,
 	type: 'expense',
 	label: 'netflix',
@@ -23,13 +24,17 @@ storage.create({
 	operatedAt: new Date(2025, 6, 1),
 });
 
-storage.create({
+console.log({ conversionEurDol: calculator.convert(t1.getAmount(), t1.getCurrency()) });
+
+const t2 = storage.create({
 	amount: 30,
 	type: 'expense',
 	label: 'youtube',
-	currency: 'EUR',
+	currency: 'USD',
 	operatedAt: new Date(2025, 6, 3),
 });
+
+console.log({ conversionDolEur: calculator.convert(t2.getAmount(), t1.getCurrency()) });
 
 storage.create({
 	amount: 99,

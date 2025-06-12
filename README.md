@@ -12,6 +12,7 @@
 - [ ] Modifier une catégorie
 - [ ] Supprimer une catégorie
 - [x] Calculer le résultat du mois
+- [x] Convertir les devises
 
 ## Stack technique
 
