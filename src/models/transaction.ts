@@ -3,6 +3,17 @@ import { v7 as uuidV7 } from 'uuid';
 export type TransactionType = 'expense' | 'income';
 export type Currency = 'EUR' | 'DOL';
 
+export interface TransactionInterface {
+	id: string;
+	type: TransactionType;
+	label: string;
+	amount: number;
+	currency: Currency;
+	operatedAt: Date;
+	createdAt: Date;
+	updatedAt: Date;
+}
+
 export class Transaction {
 	#id: string;
 
@@ -26,15 +37,15 @@ export class Transaction {
 		this.#updatedAt = new Date();
 	}
 
-	getId() {
+	getId(): TransactionInterface['id'] {
 		return this.#id;
 	}
 
-	getCreatedAt() {
+	getCreatedAt(): TransactionInterface['createdAt'] {
 		return this.#createdAt;
 	}
 
-	getUpdatedAt() {
+	getUpdatedAt(): TransactionInterface['updatedAt'] {
 		return this.#updatedAt;
 	}
 
@@ -43,7 +54,7 @@ export class Transaction {
 		return this;
 	}
 
-	getType() {
+	getType(): TransactionInterface['type'] {
 		return this.#type;
 	}
 
@@ -52,7 +63,7 @@ export class Transaction {
 		return this;
 	}
 
-	getLabel() {
+	getLabel(): TransactionInterface['label'] {
 		return this.#label;
 	}
 
@@ -61,7 +72,7 @@ export class Transaction {
 		return this;
 	}
 
-	getAmount() {
+	getAmount(): TransactionInterface['amount'] {
 		return this.#amount / 100;
 	}
 
@@ -70,7 +81,7 @@ export class Transaction {
 		return this;
 	}
 
-	getCurrency() {
+	getCurrency(): TransactionInterface['currency'] {
 		return this.#currency;
 	}
 
@@ -79,7 +90,7 @@ export class Transaction {
 		return this;
 	}
 
-	getOperatedAt() {
+	getOperatedAt(): TransactionInterface['operatedAt'] {
 		return this.#operatedAt;
 	}
 
@@ -129,9 +140,9 @@ export class Transaction {
 			label: this.#label,
 			amount: this.#amount,
 			currency: this.#currency,
-			operatedAt: this.#operatedAt,
-			createdAt: this.#createdAt,
-			updatedAt: this.#updatedAt,
+			operatedAt: this.#operatedAt.toISOString(),
+			createdAt: this.#createdAt.toISOString(),
+			updatedAt: this.#updatedAt.toISOString(),
 		};
 	}
 }

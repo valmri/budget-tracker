@@ -1,14 +1,16 @@
-export interface StorageInterface {
-	delete(transactionId: Transaction['id']): void;
+import type { Transaction, TransactionInterface } from '../models/transaction';
 
-	create(payload: Omit<Transaction, 'id' | 'createdAt' | 'updatedAt'>): Transaction;
+export interface StorageInterface {
+	delete(transactionId: TransactionInterface['id']): void;
+
+	create(payload: Omit<TransactionInterface, 'id' | 'createdAt' | 'updatedAt'>): Transaction;
 
 	update(
-		transactionId: Transaction['id'],
-		payload: Partial<Omit<Transaction, 'id' | 'createdAt' | 'updatedAt'>>,
+		transactionId: TransactionInterface['id'],
+		payload: Partial<Omit<TransactionInterface, 'id' | 'createdAt' | 'updatedAt'>>,
 	): Transaction | undefined;
 
-	show(transactionId: Transaction['id']): Transaction | undefined;
+	show(transactionId: TransactionInterface['id']): Transaction | undefined;
 
 	all(): Array<Transaction>;
 }

@@ -1,6 +1,6 @@
-import { v7 as uuidV7 } from 'uuid';
+import type { StorageInterface } from './storage_interface';
 
-import type { StorageInterface, Transaction } from './storage_interface';
+import { Transaction, type TransactionInterface } from '../models/transaction';
 
 export class InMemoryStorage implements StorageInterface {
 	transactions: Array<Transaction> = [];
@@ -10,16 +10,11 @@ export class InMemoryStorage implements StorageInterface {
 	}
 
 	show(transactionId: string): Transaction | undefined {
-		return this.transactions.find((transaction) => transaction.id === transactionId);
+		return this.transactions.find((transaction) => transaction.getId() === transactionId);
 	}
 
-	create(payload: Omit<Transaction, 'id' | 'createdAt' | 'updatedAt'>): Transaction {
-		const transaction = {
-			...payload,
-			id: uuidV7(),
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		} satisfies Transaction;
+	create(payload: Omit<TransactionInterface, 'id' | 'createdAt' | 'updatedAt'>): Transaction {
+		const transaction = Transaction.fromJSON(payload);
 
 		this.transactions.push(transaction);
 
@@ -27,12 +22,12 @@ export class InMemoryStorage implements StorageInterface {
 	}
 
 	update(
-		transactionId: Transaction['id'],
-		payload: Partial<Omit<Transaction, 'id' | 'createdAt' | 'updatedAt'>>,
+		transactionId: TransactionInterface['id'],
+		payload: Partial<Omit<TransactionInterface, 'id' | 'createdAt' | 'updatedAt'>>,
 	): Transaction | undefined {
 		// eslint-disable-next-line sonarjs/no-ignored-return
 		this.transactions.map((transaction) => {
-			if (transactionId !== transaction.id) {
+			if (transactionId !== transaction.getId()) {
 				return transaction;
 			}
 
@@ -46,7 +41,9 @@ export class InMemoryStorage implements StorageInterface {
 		return this.show(transactionId);
 	}
 
-	delete(transactionId: Transaction['id']): void {
-		this.transactions = this.transactions.filter((transaction) => transactionId !== transaction.id);
+	delete(transactionId: TransactionInterface['id']): void {
+		this.transactions = this.transactions.filter(
+			(transaction) => transactionId !== transaction.getId(),
+		);
 	}
 }
