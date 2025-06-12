@@ -2,15 +2,16 @@
 
 ## Fonctionnalités
 
-- [ ] Ajouter son salaire net
-- [ ] Ajouter une dépense
-- [ ] Ajouter une recette
-- [ ] Modifier une dépense/recette
-- [ ] Supprimer une dépense/recette
+- [x] Ajouter son salaire net
+- [x] Ajouter une dépense
+- [x] Ajouter une recette
+- [x] Modifier une dépense/recette
+- [x] Supprimer une dépense/recette
 - [ ] Catégoriser une dépense/recette
 - [ ] Ajouter une catégorie
 - [ ] Modifier une catégorie
 - [ ] Supprimer une catégorie
+- [x] Calculer le résultat du mois
 
 ## Stack technique
 
