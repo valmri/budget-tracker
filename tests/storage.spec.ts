@@ -19,7 +19,7 @@ describe('storage', () => {
 		// 2. Act
 
 		// 3. Assert
-		expect(storage.transactions.length).toBe(0);
+		expect(storage.transactionsCount()).toBe(0);
 	});
 
 	it('should add a new transaction', ({ expect }) => {
@@ -33,66 +33,67 @@ describe('storage', () => {
 			operatedAt: new Date(),
 		} as const;
 		const today = new Date();
-		const startLength = storage.transactions.length;
+		const startLength = storage.transactionsCount();
 
 		vi.setSystemTime(today);
 
 		// 2. Act
-		const output = storage.create(payload);
+		const output = storage.createTransaction(payload);
+		const firstTransaction = storage.listTransactions().at(0);
 
 		// 3. Assert
-		expect(storage.transactions.length).toBe(1);
-		expect(storage.transactions.at(0)).toBeInstanceOf(Transaction);
-		expect(storage.transactions[0]).toStrictEqual(output);
-		expect(storage.transactions).toHaveLength(startLength + 1);
+		expect(storage.transactionsCount()).toBe(1);
+		expect(firstTransaction).toBeInstanceOf(Transaction);
+		expect(firstTransaction).toStrictEqual(output);
+		expect(storage.transactionsCount()).toStrictEqual(startLength + 1);
 	});
 
 	it('should update an existing transaction', ({ expect }) => {
 		// 1. Arrange
 		const storage = new InMemoryStorage();
-		const transaction = storage.create({
+		const transaction = storage.createTransaction({
 			label: 'transaction',
 			amount: 9,
 			currency: 'EUR',
 			type: 'expense',
 			operatedAt: new Date(),
 		});
-		const startLength = storage.transactions.length;
+		const startLength = storage.transactionsCount();
 		const updatedLabel = 'nouveau label';
 
 		// 2. Act
-		const output = storage.update(transaction.getId(), {
+		const output = storage.updateTransaction(transaction.id, {
 			label: updatedLabel,
 		});
 
 		// 3. Assert
-		expect(output?.getLabel()).toStrictEqual(updatedLabel);
-		expect(storage.transactions).toHaveLength(startLength);
+		expect(output?.label).toStrictEqual(updatedLabel);
+		expect(storage.transactionsCount()).toStrictEqual(startLength);
 	});
 
 	it('should delete an existing transaction', ({ expect }) => {
 		// 1. Arrange
 		const storage = new InMemoryStorage();
-		const transaction = storage.create({
+		const transaction = storage.createTransaction({
 			label: 'transaction',
 			amount: 9,
 			currency: 'EUR',
 			type: 'expense',
 			operatedAt: new Date(),
 		});
-		const startLength = storage.transactions.length;
+		const startLength = storage.transactionsCount();
 
 		// 2. Act
-		storage.delete(transaction.getId());
+		storage.deleteTransaction(transaction.id);
 
 		// 3. Assert
-		expect(storage.transactions).toHaveLength(startLength - 1);
+		expect(storage.transactionsCount()).toStrictEqual(startLength - 1);
 	});
 
 	it('should find an existing transaction by its id', ({ expect }) => {
 		// 1. Arrange
 		const storage = new InMemoryStorage();
-		const transaction = storage.create({
+		const transaction = storage.createTransaction({
 			label: 'transaction',
 			amount: 9,
 			currency: 'EUR',
@@ -101,9 +102,9 @@ describe('storage', () => {
 		});
 
 		// 2. Act
-		const output = storage.show(transaction.getId());
+		const output = storage.getTransaction(transaction.id);
 
 		// 3. Assert
-		expect(output?.getId()).toStrictEqual(transaction.getId());
+		expect(output?.id).toStrictEqual(transaction.id);
 	});
 });

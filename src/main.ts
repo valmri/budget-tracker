@@ -3,6 +3,7 @@ import '@fontsource-variable/geist-mono';
 
 import './style.css';
 import { Calculator } from './compute/calculator';
+import { ChangeRateConverter } from './compute/change_rate_converter';
 import { InMemoryStorage } from './storage/in_memory_storage';
 
 const root = document.querySelector<HTMLElement>('#root');
@@ -11,12 +12,11 @@ if (!root) {
 	throw new Error('Root element not found');
 }
 
-const storage = new InMemoryStorage();
+const calculator = new Calculator(new InMemoryStorage(), new ChangeRateConverter());
 
-const calculator = new Calculator(storage, 1_000);
-await calculator.fetchChangeRates();
+await calculator.changeRateConverter.fetchRates();
 
-const t1 = storage.create({
+const t1 = calculator.storage.createTransaction({
 	amount: 25,
 	type: 'expense',
 	label: 'netflix',
@@ -24,9 +24,9 @@ const t1 = storage.create({
 	operatedAt: new Date(2025, 6, 1),
 });
 
-console.log({ conversionEurDol: calculator.convert(t1.getAmount(), t1.getCurrency()) });
+console.log({ conversionEurDol: calculator.changeRateConverter.convert(t1.amount, t1.currency) });
 
-const t2 = storage.create({
+const t2 = calculator.storage.createTransaction({
 	amount: 30,
 	type: 'expense',
 	label: 'youtube',
@@ -34,37 +34,12 @@ const t2 = storage.create({
 	operatedAt: new Date(2025, 6, 3),
 });
 
-console.log({ conversionDolEur: calculator.convert(t2.getAmount(), t1.getCurrency()) });
+console.log({ conversionDolEur: calculator.changeRateConverter.convert(t2.amount, t1.currency) });
 
-storage.create({
+calculator.storage.createTransaction({
 	amount: 99,
 	type: 'income',
 	label: 'nord vpn',
 	currency: 'EUR',
 	operatedAt: new Date(2025, 6, 9),
 });
-
-document.body.textContent = calculator.compute().toString();
-
-/*function App(storage: StorageInterface) {
-	console.log({ storage });
-	const fragment = document.createDocumentFragment();
-
-	fragment.append(
-		createElement(
-			'h1',
-			{
-				className: 'text-2xl',
-			},
-			{},
-			'Budget Tracker',
-		),
-	);
-
-	fragment.append(Modal());
-	// fragment.append(OperationTable());
-
-	return fragment;
-}
-
-root.append(App(new InMemoryStorage()));*/

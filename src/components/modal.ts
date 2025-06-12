@@ -1,4 +1,4 @@
-import { createElement, createSVGElement } from '../utils';
+import { createElement, createSVGElement } from '../renderer/utils';
 import { ModalForm } from './modal_form';
 
 function handleFormSubmit(values: FormData) {

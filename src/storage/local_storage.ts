@@ -1,44 +1,51 @@
-import { Transaction, type TransactionInterface } from '../models/transaction';
+import { Transaction, type TransactionOmitted } from '../models/transaction';
 import { type StorageInterface } from './storage_interface';
 
 export class LocalStorage implements StorageInterface {
-	#storageKey = 'transactions';
+	#storageKey = 'budget_tracker';
 	#transactions: Array<Transaction> = [];
+	#salary: number = 0;
 
 	constructor() {
 		this.#loadFromStorage();
 	}
 
 	#save() {
-		JSON.stringify(this.#transactions.map((transaction) => transaction.toJSON()));
+		JSON.stringify({
+			salary: this.#salary,
+			transactions: this.#transactions.map((transaction) => transaction.serialize()),
+		});
 	}
 
 	#loadFromStorage(): void {
 		const encoded = window.localStorage.getItem(this.#storageKey);
 
 		if (!encoded) {
-			this.#transactions = [];
 			return;
 		}
 
 		const decoded = JSON.parse(encoded);
 
-		this.#transactions = Array.isArray(decoded)
-			? decoded.map((item) => Transaction.fromJSON(item))
-			: [Transaction.fromJSON(decoded)];
+		if ('salary' in decoded) {
+			this.#salary = decoded.salary;
+		}
+
+		if ('transactions' in decoded) {
+			decoded.transactions.map((item: TransactionOmitted) => new Transaction(item));
+		}
 	}
 
-	all(): Array<Transaction> {
+	listTransactions(): Array<Transaction> {
 		return this.#transactions;
 	}
 
-	show(transactionId: string): Transaction | undefined {
-		return this.#transactions.find((transaction) => transaction.getId() === transactionId);
+	getTransaction(transactionId: string): Transaction | undefined {
+		return this.#transactions.find((transaction) => transaction.id === transactionId);
 	}
 
-	create(payload: Omit<TransactionInterface, 'id' | 'createdAt' | 'updatedAt'>): Transaction {
-		const transaction = Transaction.fromJSON(payload);
-		const transactionExists = this.#transactions.some((t) => t.getId() === transaction.getId());
+	createTransaction(payload: TransactionOmitted): Transaction {
+		const transaction = new Transaction(payload);
+		const transactionExists = this.#transactions.some((t) => t.id === transaction.id);
 
 		if (!transactionExists) {
 			this.#transactions.push(transaction);
@@ -48,40 +55,39 @@ export class LocalStorage implements StorageInterface {
 		return transaction;
 	}
 
-	update(
-		transactionId: TransactionInterface['id'],
-		payload: Partial<Omit<TransactionInterface, 'id' | 'createdAt' | 'updatedAt'>>,
+	updateTransaction(
+		transactionId: Transaction['id'],
+		payload: Partial<TransactionOmitted>,
 	): Transaction | undefined {
 		this.#transactions = this.#transactions.map((transaction) => {
-			if (transactionId !== transaction.getId()) {
+			if (transactionId !== transaction.id) {
 				return transaction;
 			}
 
-			if (payload.label && payload.label !== transaction.getLabel()) {
-				transaction.setLabel(payload.label);
-			}
-
-			if (payload.amount && payload.amount !== transaction.getAmount()) {
-				transaction.setAmount(payload.amount);
-			}
-
-			if (payload.currency && payload.currency !== transaction.getCurrency()) {
-				transaction.setCurrency(payload.currency);
-			}
-
-			if (payload.operatedAt && payload.operatedAt !== transaction.getOperatedAt()) {
-				transaction.setOperatedAt(payload.operatedAt);
-			}
-
+			const updatedTransaction = transaction.update(payload);
 			this.#save();
-			return transaction;
+
+			return updatedTransaction;
 		});
 
-		return this.show(transactionId);
+		return this.getTransaction(transactionId);
 	}
 
-	delete(transactionId: string): void {
-		this.#transactions = this.#transactions.filter((t) => t.getId() !== transactionId);
+	deleteTransaction(transactionId: string): void {
+		this.#transactions = this.#transactions.filter((t) => t.id !== transactionId);
 		this.#save();
+	}
+
+	transactionsCount(): number {
+		return this.#transactions.length;
+	}
+
+	setSalary(salary: number): void {
+		this.#salary = salary;
+		this.#save();
+	}
+
+	getSalary(): number {
+		return this.#salary;
 	}
 }

@@ -1,6 +1,6 @@
 import { describe, it, vi } from 'vitest';
 
-import { createElement } from '../src/utils';
+import { createElement } from '../src/renderer/utils';
 
 // 1 -> unitaires (vitest, jest)
 // 2 -> intégration (vitest, jest)

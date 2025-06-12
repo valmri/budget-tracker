@@ -1,16 +1,22 @@
-import type { Transaction, TransactionInterface } from '../models/transaction';
+import type { Transaction, TransactionOmitted } from '../models/transaction';
 
 export interface StorageInterface {
-	delete(transactionId: TransactionInterface['id']): void;
+	listTransactions(): Array<Transaction>;
 
-	create(payload: Omit<TransactionInterface, 'id' | 'createdAt' | 'updatedAt'>): Transaction;
+	getTransaction(transactionId: Transaction['id']): Transaction | undefined;
 
-	update(
-		transactionId: TransactionInterface['id'],
-		payload: Partial<Omit<TransactionInterface, 'id' | 'createdAt' | 'updatedAt'>>,
+	createTransaction(payload: TransactionOmitted): Transaction;
+
+	updateTransaction(
+		transactionId: Transaction['id'],
+		payload: Partial<TransactionOmitted>,
 	): Transaction | undefined;
 
-	show(transactionId: TransactionInterface['id']): Transaction | undefined;
+	deleteTransaction(transactionId: Transaction['id']): void;
 
-	all(): Array<Transaction>;
+	transactionsCount(): number;
+
+	setSalary(salary: number): void;
+
+	getSalary(): number;
 }

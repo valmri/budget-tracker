@@ -1,4 +1,4 @@
-import { createElement } from '../utils';
+import { createElement } from '../renderer/utils';
 import { ModalField } from './modal_input';
 
 interface Props {
