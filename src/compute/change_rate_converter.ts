@@ -1,4 +1,4 @@
-import type { Currency } from '../models/transaction';
+import { type Currency } from '../models/transaction';
 
 export class ChangeRateConverter {
 	#changeRates = {

@@ -7,10 +7,9 @@
 - [x] Ajouter une recette
 - [x] Modifier une dépense/recette
 - [x] Supprimer une dépense/recette
-- [ ] Catégoriser une dépense/recette
-- [ ] Ajouter une catégorie
-- [ ] Modifier une catégorie
-- [ ] Supprimer une catégorie
+- [x] Catégoriser une dépense/recette
+- [x] Ajouter une catégorie
+- [x] Supprimer une catégorie
 - [x] Calculer le résultat du mois
 - [x] Convertir les devises
 - [ ] Faire un affichage mois par mois

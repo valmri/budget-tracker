@@ -3,8 +3,9 @@ import { createElement, createSVGElement } from '../renderer/utils';
 interface ButtonProps {
 	variant: 'normal' | 'square';
 	action: 'primary' | 'danger' | 'secondary';
+	size?: 'md' | 'sm' | 'lg';
 	content?: string;
-	icon?: 'edit' | 'delete';
+	icon?: 'edit' | 'delete' | 'x';
 	className?: string;
 	events?: Partial<Record<keyof HTMLElementEventMap, (...args: Array<any>) => void>>;
 }
@@ -15,8 +16,16 @@ export function Button(props: ButtonProps) {
 	if (props.variant === 'normal') {
 		className += ' px-4 py-3';
 	} else if (props.variant === 'square') {
-		className += ' size-10';
+		if (props.size === 'lg') {
+			className += ' size-12';
+		} else if (props.size === 'md') {
+			className += ' size-10';
+		} else {
+			className += ' size-8';
+		}
 	}
+
+
 
 	switch (props.action) {
 		case 'primary': {

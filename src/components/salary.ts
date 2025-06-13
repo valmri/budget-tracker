@@ -1,4 +1,5 @@
 import { createElement } from '../renderer/utils';
+import { Button } from './button';
 import { ModalField } from './modal_input';
 
 interface SalaryFormProps {
@@ -15,16 +16,47 @@ export function SalaryForm(props: SalaryFormProps) {
 		props.onUpdate(event.currentTarget.valueAsNumber);
 	}
 
-	return createElement('form', { className: 'grid gap-4' }, {}, [
+	function handleSubmit(event: SubmitEvent) {
+		event.preventDefault();
+
+		if (!(event.currentTarget instanceof HTMLFormElement)) {
+			return;
+		}
+
+		props.onUpdate(event.currentTarget['amount'].valueAsNumber);
+	}
+
+	function handleClear(event: MouseEvent) {
+		props.onUpdate(0);
+
+		if (!(event.currentTarget instanceof HTMLButtonElement)) {
+			return;
+		}
+
+		event.currentTarget.closest('form')?.reset();
+	}
+
+	return createElement('form', { className: 'flex items-end gap-4' }, { submit: handleSubmit }, [
 		ModalField({
 			inputType: 'number',
 			name: 'amount',
 			label: 'Salaire',
 			required: true,
 			value: props.value?.toString(),
+			className: 'grow',
 			events: {
 				blur: handleBlur
 			}
 		}),
+		Button({
+			variant: 'square',
+			action: 'secondary',
+			icon: 'x',
+			size: 'lg',
+			className: 'shrink-0',
+			events: {
+				click: handleClear
+			}
+		})
 	])
 }

@@ -25,14 +25,23 @@
 				<symbol id="delete" viewBox="0 0 24 24">
 					<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2m-6 5v6m4-6v6"></path>
 				</symbol>
+				<symbol viewBox="0 0 24 24" id="x">
+					<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 6L6 18M6 6l12 12"></path>
+				</symbol>
 			</defs>
 		</svg>
 
-		<main class="mx-auto my-10 max-w-4xl grid gap-10">
-			<section id="actions"></section>
-			<section id="salary"></section>
-			<section id="history"></section>
-			<section id="balance"></section>
-		</main>
+		<div class="flex my-10 gap-6 mx-auto max-w-7xl">
+			<main class="grid gap-10 grow">
+				<section id="actions"></section>
+				<section id="salary"></section>
+				<section id="history"></section>
+				<section id="balance"></section>
+			</main>
+			<aside class="max-w-[400px] shrink-0 p-4 rounded-lg bg-white shadow-md">
+				<h2 class="text-lg font-semibold mb-4">Catégories</h2>
+				<div id="categories"></div>
+			</aside>
+		</div>
 	</body>
 </html>

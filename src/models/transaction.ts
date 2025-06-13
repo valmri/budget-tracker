@@ -1,14 +1,21 @@
 import { v7 as uuidV7 } from 'uuid';
 
+import type { ChangeRateConverter } from '../compute/change_rate_converter';
+import type { Category } from './category';
+
+import { inverseCurrency } from '../utils';
+
 export type TransactionType = 'expense' | 'income';
 export type Currency = 'EUR' | 'USD';
 
 export type TransactionOmitted = Omit<
 	Transaction,
-	'id' | 'createdAt' | 'updatedAt' | 'update' | 'serialize'
->;
+	'createdAt' | 'updatedAt' | 'category' | 'update' | 'serialize'
+> & { categoryId?: string };
 
 export class Transaction {
+	readonly #changeRateConverter: ChangeRateConverter;
+
 	readonly #id: string;
 
 	#type: TransactionType = 'expense';
@@ -17,7 +24,13 @@ export class Transaction {
 
 	#amount: number = 0;
 
+	#convertedAmount: number = 0;
+
 	#currency: Currency = 'EUR';
+
+	#convertedCurrency: Currency = 'EUR';
+
+	#category: Category | undefined;
 
 	#operatedAt: Date = new Date();
 
@@ -41,8 +54,20 @@ export class Transaction {
 		return this.#amount;
 	}
 
+	get convertedAmount(): number {
+		return this.#convertedAmount;
+	}
+
 	get currency(): Currency {
 		return this.#currency;
+	}
+
+	get convertedCurrency(): Currency {
+		return this.#convertedCurrency;
+	}
+
+	get category(): Category | undefined {
+		return this.#category;
 	}
 
 	get operatedAt(): Date {
@@ -69,8 +94,20 @@ export class Transaction {
 		this.#amount = a;
 	}
 
+	set convertedAmount(a: number) {
+		this.#convertedAmount = a;
+	}
+
 	set currency(c: Currency) {
 		this.#currency = c;
+	}
+
+	set convertedCurrency(c: Currency) {
+		this.#convertedCurrency = c;
+	}
+
+	set category(c: Category | undefined) {
+		this.#category = c;
 	}
 
 	set operatedAt(date: Date) {
@@ -81,8 +118,9 @@ export class Transaction {
 		this.#updatedAt = date;
 	}
 
-	constructor(payload?: Partial<Transaction>) {
-		this.#id = uuidV7();
+	constructor(categories: Array<Category>, changeRateConverter: ChangeRateConverter, payload?: Partial<TransactionOmitted>) {
+		this.#changeRateConverter = changeRateConverter;
+		this.#id = payload?.id ?? uuidV7();
 		this.#createdAt = new Date();
 		this.#updatedAt = new Date();
 
@@ -96,16 +134,22 @@ export class Transaction {
 
 		if (payload && payload.amount) {
 			this.#amount = payload.amount;
+			this.#convertedAmount = changeRateConverter.convert(this.#amount, payload?.currency ?? this.#currency);
 		}
 
 		if (payload && payload.currency) {
 			this.#currency = payload.currency;
+			this.#convertedCurrency = inverseCurrency(this.#currency);
+		}
+
+		if (payload && payload.categoryId && categories) {
+			this.#category = categories.find((c) => c.id === payload.categoryId);
 		}
 
 		this.#operatedAt = payload && payload.operatedAt ? new Date(payload.operatedAt) : new Date();
 	}
 
-	update(payload: Partial<TransactionOmitted>) {
+	update(payload: Partial<TransactionOmitted>, categories: Array<Category>) {
 		if (payload.type && payload.type !== this.#type) {
 			this.#type = payload.type;
 		}
@@ -116,14 +160,20 @@ export class Transaction {
 
 		if (payload.amount && payload.amount !== this.#amount) {
 			this.#amount = payload.amount;
+			this.#convertedAmount = this.#changeRateConverter.convert(this.#amount, payload.currency ?? this.#currency);
 		}
 
 		if (payload.currency && payload.currency !== this.#currency) {
 			this.#currency = payload.currency;
+			this.#convertedCurrency = inverseCurrency(this.#currency);
 		}
 
 		if (payload.operatedAt && payload.operatedAt !== this.#operatedAt) {
 			this.#operatedAt = new Date(payload.operatedAt);
+		}
+
+		if (payload.categoryId) {
+			this.#category = categories.find((c) => c.id === payload.categoryId);
 		}
 
 		this.#updatedAt = new Date();
@@ -138,6 +188,7 @@ export class Transaction {
 			label: this.#label,
 			amount: this.#amount,
 			currency: this.#currency,
+			categoryId: this.#category ? this.#category.id : undefined,
 			operatedAt: this.#operatedAt.toISOString(),
 			createdAt: this.#createdAt.toISOString(),
 			updatedAt: this.#updatedAt.toISOString(),

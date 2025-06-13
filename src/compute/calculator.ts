@@ -1,12 +1,15 @@
+import type { Category } from '../models/category';
 import type { StorageInterface } from '../storage/storage_interface';
 import type { ChangeRateConverter } from './change_rate_converter';
 
 import { Balance } from '../components/balance';
 import { Button } from '../components/button';
+import { Categories } from '../components/categories';
 import { Modal } from '../components/modal';
 import { SalaryForm } from '../components/salary';
 import { OperationsTable } from '../components/table';
-import { type Currency, Transaction, type TransactionType } from '../models/transaction';
+import { type Currency, Transaction, type TransactionOmitted, type TransactionType } from '../models/transaction';
+import { inverseCurrency } from '../utils';
 
 interface CalculatorProps {
 	storage: StorageInterface;
@@ -16,6 +19,7 @@ interface CalculatorProps {
 		history: HTMLElement;
 		balance: HTMLElement;
 		salary: HTMLElement;
+		categories: HTMLElement;
 	};
 }
 
@@ -26,6 +30,7 @@ export class Calculator {
 	readonly #historyContainer: HTMLElement;
 	readonly #balanceContainer: HTMLElement;
 	readonly #salaryContainer: HTMLElement;
+	readonly #categoriesContainer: HTMLElement;
 
 	constructor(props: CalculatorProps) {
 		this.#storage = props.storage;
@@ -34,6 +39,7 @@ export class Calculator {
 		this.#historyContainer = props.dom.history;
 		this.#balanceContainer = props.dom.balance;
 		this.#salaryContainer = props.dom.salary;
+		this.#categoriesContainer = props.dom.categories;
 	}
 
 	get storage(): StorageInterface {
@@ -77,8 +83,9 @@ export class Calculator {
 		return output;
 	}
 
+	// eslint-disable-next-line sonarjs/cognitive-complexity
 	handleCreateTransaction(values: FormData) {
-		const transaction = new Transaction();
+		const transaction = new Transaction(this.#storage.listCategories(), this.#changeRateConverter);
 
 		for (const [name, value] of values) {
 			if (name === 'operation-date') {
@@ -91,6 +98,7 @@ export class Calculator {
 
 			if (name === 'operation-amount') {
 				transaction.amount = Number(value as string);
+				transaction.convertedAmount = this.#changeRateConverter.convert(transaction.amount, transaction.currency);
 			}
 
 			if (name === 'operation-type') {
@@ -99,6 +107,17 @@ export class Calculator {
 
 			if (name === 'operation-currency') {
 				transaction.currency = value as Currency;
+				transaction.convertedCurrency = inverseCurrency(transaction.currency);
+			}
+
+			if (name === 'operation-category') {
+				const categoryId = value as string;
+
+				if (categoryId === '') {
+					continue;
+				}
+
+				transaction.category = this.#storage.getCategory(categoryId);
 			}
 		}
 
@@ -114,7 +133,8 @@ export class Calculator {
 			amount: Number(values.get('operation-amount') as string),
 			currency: values.get('operation-currency') as Currency,
 			operatedAt: new Date(values.get('operation-date') as string),
-		} satisfies Partial<Transaction>;
+			categoryId: values.get('operation-category') as string,
+		} satisfies Partial<TransactionOmitted>;
 
 		this.#storage.updateTransaction(values.get('operation-id') as string, payload);
 		this.renderOperationsTable();
@@ -134,11 +154,41 @@ export class Calculator {
 		this.renderBalance();
 	}
 
+	handleCategoryCreate(name: Category['name']): void {
+		this.#storage.createCategory(name);
+		this.renderActions();
+		this.renderCategories();
+		this.renderOperationsTable();
+	}
+
+	handleCategoryDelete(id: Category['id']): void {
+		if (window.confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?')) {
+			this.#storage.deleteCategory(id);
+
+			let isDirty = false;
+			this.#storage.mapTransactions((transaction) => {
+				if (transaction.category?.id === id) {
+					isDirty = true;
+					transaction.category = undefined;
+				}
+
+				return transaction;
+			})
+
+			if (isDirty) {
+				this.renderOperationsTable();
+			}
+
+			this.renderCategories();
+		}
+	}
+
 	renderOperationsTable(): void {
 		this.#historyContainer.replaceChildren(OperationsTable({
 			transactions: this.#storage.listTransactions(),
 			onTransactionUpdate: this.handleTransactionUpdate.bind(this),
 			onTransactionDelete: this.handleTransactionDelete.bind(this),
+			categories: this.#storage.listCategories().map(category => [category.id, category.name]),
 		}));
 	}
 
@@ -149,12 +199,12 @@ export class Calculator {
 			modalTitle: 'Ajouter une opération',
 			onFormSubmit: this.handleCreateTransaction.bind(this),
 			trigger: Button({ variant: 'normal', action: 'primary', content: 'Ajouter une opération', className: 'w-full' }),
+			categories: this.#storage.listCategories().map(category => [category.id, category.name]),
 		}));
 	}
 
 	renderBalance(): void {
 		const balance = this.compute();
-		console.log({ balance })
 		this.#balanceContainer.replaceChildren(Balance({
 			totalBalance: balance.balance,
 			totalExpenses: balance.expense,
@@ -171,10 +221,19 @@ export class Calculator {
 		);
 	}
 
+	renderCategories(): void {
+		this.#categoriesContainer.replaceChildren(Categories({
+			categories: this.#storage.listCategories(),
+			onCategoryCreate: this.handleCategoryCreate.bind(this),
+			onCategoryDelete: this.handleCategoryDelete.bind(this),
+		}))
+	}
+
 	render(): void {
 		this.renderActions();
 		this.renderSalary();
 		this.renderOperationsTable();
 		this.renderBalance();
+		this.renderCategories();
 	}
 }

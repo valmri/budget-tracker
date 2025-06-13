@@ -1,10 +1,23 @@
+import type { ChangeRateConverter } from '../compute/change_rate_converter';
 import type { StorageInterface } from './storage_interface';
 
+import {  Category } from '../models/category';
 import { Transaction, type TransactionOmitted } from '../models/transaction';
 
 export class InMemoryStorage implements StorageInterface {
+	readonly #changeRateConverter: ChangeRateConverter;
+
 	#transactions: Array<Transaction> = [];
+	#categories: Array<Category> = [];
 	#salary: number = 0;
+
+	constructor(changeRateConverter: ChangeRateConverter) {
+		this.#changeRateConverter = changeRateConverter;
+	}
+
+	hydrate(): void {
+		// No-op for in-memory storage
+	}
 
 	listTransactions(): Array<Transaction> {
 		return this.#transactions;
@@ -14,8 +27,11 @@ export class InMemoryStorage implements StorageInterface {
 		return this.#transactions.find((transaction) => transaction.id === transactionId);
 	}
 
-	createTransaction(payload: TransactionOmitted): Transaction {
-		const transaction = new Transaction(payload);
+	createTransaction(payload: TransactionOmitted | Transaction): Transaction {
+		const transaction = payload instanceof Transaction
+			? payload
+			: new Transaction(this.#categories, this.#changeRateConverter, payload);
+
 		this.#transactions.push(transaction);
 
 		return transaction;
@@ -30,7 +46,7 @@ export class InMemoryStorage implements StorageInterface {
 				return transaction;
 			}
 
-			return transaction.update(payload);
+			return transaction.update(payload, this.#categories);
 		});
 
 		return this.getTransaction(transactionId);
@@ -46,11 +62,36 @@ export class InMemoryStorage implements StorageInterface {
 		return this.#transactions.length;
 	}
 
+	mapTransactions(callback: (transaction: Transaction) => Transaction): void {
+		this.#transactions = this.#transactions.map((t) => callback(t));
+	}
+
 	setSalary(salary: number) {
 		this.#salary = salary;
 	}
 
 	getSalary(): number {
 		return this.#salary;
+	}
+
+	listCategories(): Array<Category> {
+		return this.#categories;
+	}
+
+	getCategory(categoryId: Category['id']): Category | undefined {
+		return this.#categories.find((category) => category.id === categoryId);
+	}
+
+	createCategory(name: string): Category {
+		const category = new Category({ name });
+		this.#categories.push(category);
+
+		return category;
+	}
+
+	deleteCategory(categoryId: Category['id']) {
+		this.#categories = this.#categories.filter(
+			(category) => categoryId !== category.id,
+		);
 	}
 }

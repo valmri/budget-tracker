@@ -1,11 +1,14 @@
+import type { Category } from '../models/category';
 import type { Transaction, TransactionOmitted } from '../models/transaction';
 
 export interface StorageInterface {
+	hydrate(): void;
+
 	listTransactions(): Array<Transaction>;
 
 	getTransaction(transactionId: Transaction['id']): Transaction | undefined;
 
-	createTransaction(payload: TransactionOmitted): Transaction;
+	createTransaction(payload: TransactionOmitted | Transaction): Transaction;
 
 	updateTransaction(
 		transactionId: Transaction['id'],
@@ -14,9 +17,19 @@ export interface StorageInterface {
 
 	deleteTransaction(transactionId: Transaction['id']): void;
 
+	mapTransactions(callback: (transaction: Transaction) => Transaction): void;
+
 	transactionsCount(): number;
 
 	setSalary(salary: number): void;
 
 	getSalary(): number;
+
+	listCategories(): Array<Category>;
+
+	getCategory(categoryId: Category['id']): Category | undefined;
+
+	createCategory(name: string): Category;
+
+	deleteCategory(categoryId: Category['id']): void;
 }

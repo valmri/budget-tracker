@@ -9,6 +9,7 @@ interface ModalProps {
 	trigger: HTMLButtonElement;
 	onFormSubmit(values: FormData): void;
 	transaction?: Transaction | undefined;
+	categories: Array<[string, string]>;
 }
 
 export function Modal(props: ModalProps) {
@@ -76,6 +77,7 @@ export function Modal(props: ModalProps) {
 			),
 			ModalForm({
 				transaction: props.transaction,
+				categories: props.categories,
 				onSubmit: handleFormSubmit,
 			}),
 		],

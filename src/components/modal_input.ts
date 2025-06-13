@@ -7,13 +7,15 @@ interface Props {
 	label: string;
 	required?: boolean;
 	value?: string | undefined;
+	className?: string;
+	placeholder?: string;
 	events?: Partial<Record<keyof HTMLElementEventMap, (...args: Array<any>) => void>>;
 }
 
 export function ModalField(props: Props) {
 	const id = props.id ?? props.name;
 
-	return createElement('div', { className: 'grid gap-1' }, {}, [
+	return createElement('div', { className: `grid gap-1 ${props.className}` }, {}, [
 		createElement('label', { htmlFor: id }, {}, props.label),
 		createElement(
 			'input',
@@ -21,6 +23,7 @@ export function ModalField(props: Props) {
 				type: props.inputType,
 				name: props.name,
 				id,
+				placeholder: props.placeholder ?? '',
 				className: 'rounded border border-slate-300 p-3 bg-white',
 				required: props.required ?? false,
 				value: props.value ?? '',
@@ -36,7 +39,7 @@ interface SelectProps {
 	id?: string | undefined;
 	label: string;
 	required?: boolean;
-	options: Array<string>;
+	options: Array<string | [string, string]>;
 	value?: string | undefined;
 }
 
@@ -55,12 +58,23 @@ export function ModalSelect(props: SelectProps) {
 				value: props.value ?? '',
 			},
 			{},
-			props.options.map((option) => createElement(
-				'option',
-				{ value: option, selected: option === props.value },
-				{},
-				option,
-			)),
+			props.options.map((option) => {
+				if (typeof option === 'string') {
+					return createElement(
+						'option',
+						{ value: option, selected: option === props.value },
+						{},
+						option,
+					)
+				}
+
+				return createElement(
+					'option',
+					{ value: option[0], selected: option[0] === props.value },
+					{},
+					option[1],
+				);
+			}),
 		),
 	]);
 }

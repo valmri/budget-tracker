@@ -7,14 +7,13 @@ import { Modal } from './modal';
 
 interface OperationsTableProps {
 	transactions: Array<Transaction>;
-
+	categories: Array<[string, string]>;
 	onTransactionUpdate(values: FormData): void;
-
 	onTransactionDelete(transactionId: string): void;
 }
 
 export function OperationsTable(props: OperationsTableProps) {
-	return createElement('table', { className: 'w-full rounded bg-white shadow' }, {}, [
+	return createElement('table', { className: 'w-full rounded bg-white shadow text-sm' }, {}, [
 		createElement('thead', { className: 'bg-indigo-50 text-indigo-600' }, {}, [
 			createElement('tr', {}, {}, [
 				createElement('th', { className: 'p-3 text-left font-medium' }, {}, 'Date'),
@@ -29,29 +28,45 @@ export function OperationsTable(props: OperationsTableProps) {
 			{},
 			{},
 			props.transactions.map((transaction) =>
-				createElement('tr', {}, {}, [
+				createElement('tr', { className: 'align-top' }, {}, [
 					createElement(
 						'td',
 						{ className: 'px-3 py-2 text-left' },
 						{},
 						dateFormatter.format(transaction.operatedAt),
 					),
-					createElement('td', { className: 'px-3 py-2 text-left' }, {}, transaction.label),
+					createElement('td', { className: 'px-3 py-2 text-left' }, {}, [
+						createElement('p', {}, {}, transaction.label),
+						transaction.category
+							? createElement(
+									'p',
+									{ className: 'text-gray-500 text-xs' },
+									{},
+									transaction.category.name,
+							  )
+							: null,
+					]),
 					createElement(
 						'td',
 						{ className: 'px-3 py-2 text-right' },
 						{},
 						transaction.type === 'income'
-							? `${currencyFormatter[transaction.currency].format(transaction.amount)}`
-							: '',
+							? [
+								createElement('p', {}, {}, currencyFormatter[transaction.currency].format(transaction.amount)),
+								createElement('p', { className: 'text-gray-500 text-xs' }, {}, currencyFormatter[transaction.convertedCurrency].format(transaction.convertedAmount)),
+							]
+							: null,
 					),
 					createElement(
 						'td',
 						{ className: 'px-3 py-2 text-right' },
 						{},
 						transaction.type === 'expense'
-							? `${currencyFormatter[transaction.currency].format(transaction.amount)}`
-							: '',
+							? [
+								createElement('p', {}, {}, currencyFormatter[transaction.currency].format(transaction.amount)),
+								createElement('p', { className: 'text-gray-500 text-xs' }, {}, currencyFormatter[transaction.convertedCurrency].format(transaction.convertedAmount)),
+							]
+							: null,
 					),
 					createElement(
 						'td',
@@ -64,6 +79,7 @@ export function OperationsTable(props: OperationsTableProps) {
 								onFormSubmit: (values) => props.onTransactionUpdate(values),
 								trigger: Button({ variant: 'square', action: 'secondary', icon: 'edit' }),
 								transaction,
+								categories: props.categories,
 							}),
 							Button({
 								variant: 'square',

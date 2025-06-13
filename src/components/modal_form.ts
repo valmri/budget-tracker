@@ -5,6 +5,7 @@ import { ModalField, ModalSelect } from './modal_input';
 
 interface Props {
 	transaction?: Transaction | undefined;
+	categories: Array<[string, string]>;
 	onSubmit(values: FormData): void;
 }
 
@@ -68,6 +69,13 @@ export function ModalForm(props: Props) {
 					required: true,
 					options: ['USD', 'EUR'] satisfies Array<Currency>,
 					value: props.transaction?.currency,
+				}),
+				ModalSelect({
+					name: 'operation-category',
+					label: 'Catégorie',
+					required: true,
+					options: ['', ...props.categories],
+					value: props.transaction?.category?.id,
 				}),
 				createElement(
 					'button',
