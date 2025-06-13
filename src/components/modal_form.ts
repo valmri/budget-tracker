@@ -1,9 +1,10 @@
-import type { Currency, TransactionType } from '../models/transaction';
-
+import { type Currency, Transaction, type TransactionType } from '../models/transaction';
 import { createElement } from '../renderer/utils';
+import { formatDateToInput } from '../utils';
 import { ModalField, ModalSelect } from './modal_input';
 
 interface Props {
+	transaction?: Transaction | undefined;
 	onSubmit(values: FormData): void;
 }
 
@@ -12,7 +13,13 @@ export function ModalForm(props: Props) {
 		event.preventDefault();
 
 		if (event.currentTarget instanceof HTMLFormElement) {
-			props.onSubmit(new FormData(event.currentTarget));
+			const formData = new FormData(event.currentTarget);
+
+			if (props.transaction) {
+				formData.set('operation-id', props.transaction.id);
+			}
+
+			props.onSubmit(formData);
 			event.currentTarget.reset();
 		}
 	}
@@ -32,30 +39,35 @@ export function ModalForm(props: Props) {
 					name: 'operation-date',
 					label: "Date de l'opération",
 					required: true,
+					value: props.transaction ? formatDateToInput(props.transaction?.operatedAt) : undefined,
 				}),
 				ModalField({
 					inputType: 'text',
 					name: 'operation-description',
 					label: 'Description',
 					required: true,
+					value: props.transaction?.label,
 				}),
 				ModalField({
 					inputType: 'number',
 					name: 'operation-amount',
 					label: 'Montant',
 					required: true,
+					value: props.transaction?.amount.toString()
 				}),
 				ModalSelect({
 					name: 'operation-type',
 					label: 'Type',
 					required: true,
 					options: ['income', 'expense'] satisfies Array<TransactionType>,
+					value: props.transaction?.type,
 				}),
 				ModalSelect({
 					name: 'operation-currency',
 					label: 'Devise',
 					required: true,
 					options: ['USD', 'EUR'] satisfies Array<Currency>,
+					value: props.transaction?.currency,
 				}),
 				createElement(
 					'button',
@@ -65,7 +77,7 @@ export function ModalForm(props: Props) {
 							'p-3 rounded bg-emerald-700 text-emerald-50 text-center transition-colors hover:bg-emerald-800',
 					},
 					{},
-					'Ajouter',
+					props.transaction ? 'Sauvegarder les modifications' : 'Ajouter',
 				),
 			]),
 		],

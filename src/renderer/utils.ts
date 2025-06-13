@@ -13,7 +13,7 @@ export function createElement<Tag extends keyof HTMLElementTagNameMap>(
 	tagName: Tag,
 	attributes: Record<string, string | boolean>,
 	events: Partial<Record<keyof HTMLElementEventMap, (...args: Array<any>) => void>>,
-	children?: string | Array<Element> | null | undefined,
+	children?: string | Array<Element|DocumentFragment|null|undefined> | null | undefined,
 ): HTMLElementTagNameMap[Tag] {
 	const element = document.createElement(tagName);
 
@@ -59,6 +59,10 @@ export function createElement<Tag extends keyof HTMLElementTagNameMap>(
 
 	if (Array.isArray(children)) {
 		for (let child of children) {
+			if (child === null || child === undefined) {
+				continue;
+			}
+
 			element.append(child);
 		}
 

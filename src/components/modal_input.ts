@@ -6,7 +6,8 @@ interface Props {
 	id?: string | undefined;
 	label: string;
 	required?: boolean;
-	value?: string;
+	value?: string | undefined;
+	events?: Partial<Record<keyof HTMLElementEventMap, (...args: Array<any>) => void>>;
 }
 
 export function ModalField(props: Props) {
@@ -20,11 +21,11 @@ export function ModalField(props: Props) {
 				type: props.inputType,
 				name: props.name,
 				id,
-				className: 'rounded border border-slate-300 p-3',
+				className: 'rounded border border-slate-300 p-3 bg-white',
 				required: props.required ?? false,
 				value: props.value ?? '',
 			},
-			{},
+			props.events ?? {},
 			null,
 		),
 	]);
@@ -36,7 +37,7 @@ interface SelectProps {
 	label: string;
 	required?: boolean;
 	options: Array<string>;
-	value?: string;
+	value?: string | undefined;
 }
 
 export function ModalSelect(props: SelectProps) {
@@ -49,7 +50,7 @@ export function ModalSelect(props: SelectProps) {
 			{
 				name: props.name,
 				id,
-				className: 'rounded border border-slate-300 p-3',
+				className: 'rounded border border-slate-300 p-3 bg-white',
 				required: props.required ?? false,
 				value: props.value ?? '',
 			},

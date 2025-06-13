@@ -9,8 +9,9 @@ import { LocalStorage } from './storage/local_storage';
 const actions = document.querySelector<HTMLElement>('#actions');
 const history = document.querySelector<HTMLElement>('#history');
 const balance = document.querySelector<HTMLElement>('#balance');
+const salary = document.querySelector<HTMLElement>('#salary');
 
-if (!actions || !history || !balance) {
+if (!actions || !history || !balance || !salary) {
 	throw new Error('Root elements not found');
 }
 
@@ -21,6 +22,7 @@ const calculator = new Calculator({
 		actions,
 		history,
 		balance,
+		salary,
 	},
 });
 

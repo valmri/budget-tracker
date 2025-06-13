@@ -1,8 +1,14 @@
+import type { Transaction } from '../models/transaction';
+
 import { createElement, createSVGElement } from '../renderer/utils';
 import { ModalForm } from './modal_form';
 
 interface ModalProps {
+	id: string;
+	modalTitle: string;
+	trigger: HTMLButtonElement;
 	onFormSubmit(values: FormData): void;
+	transaction?: Transaction | undefined;
 }
 
 export function Modal(props: ModalProps) {
@@ -24,24 +30,13 @@ export function Modal(props: ModalProps) {
 
 	const fragment = document.createDocumentFragment();
 
-	const trigger = createElement(
-		'button',
-		{
-			'type': 'button',
-			'className':
-				'my-6 w-full rounded bg-indigo-600 p-3 text-center text-indigo-50 transition-colors hover:bg-indigo-700',
-			'data-modal-id': 'app-operation-modal',
-		},
-		{
-			click: handleOpenModal,
-		},
-		'Ajouter une opération',
-	);
+	props.trigger.dataset['modalId'] = props.id;
+	props.trigger.addEventListener('click', handleOpenModal);
 
 	const modal = createElement(
 		'dialog',
 		{
-			id: 'add-operation-modal',
+			id: props.id,
 			className: 'w-full max-w-lg rounded shadow-sm backdrop:bg-slate-700 backdrop:opacity-30',
 		},
 		{},
@@ -57,7 +52,7 @@ export function Modal(props: ModalProps) {
 						'h2',
 						{ className: 'text-xl font-semibold text-indigo-700 uppercase' },
 						{},
-						'Ajouter une opération',
+						props.modalTitle,
 					),
 					createElement(
 						'button',
@@ -79,11 +74,14 @@ export function Modal(props: ModalProps) {
 					),
 				],
 			),
-			ModalForm({ onSubmit: handleFormSubmit }),
+			ModalForm({
+				transaction: props.transaction,
+				onSubmit: handleFormSubmit,
+			}),
 		],
 	);
 
-	fragment.append(trigger);
+	fragment.append(props.trigger);
 	fragment.append(modal);
 
 	return fragment;

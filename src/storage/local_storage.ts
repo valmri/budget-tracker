@@ -61,6 +61,7 @@ export class LocalStorage implements StorageInterface {
 	): Transaction | undefined {
 		this.#transactions = this.#transactions.map((transaction) => {
 			if (transactionId !== transaction.id) {
+				console.log('Transaction not found:', transactionId);
 				return transaction;
 			}
 
