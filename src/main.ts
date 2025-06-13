@@ -11,8 +11,9 @@ const history = document.querySelector<HTMLElement>('#history');
 const balance = document.querySelector<HTMLElement>('#balance');
 const salary = document.querySelector<HTMLElement>('#salary');
 const categories = document.querySelector<HTMLElement>('#categories');
+const dateRange = document.querySelector<HTMLInputElement>('#daterange');
 
-if (!actions || !history || !balance || !salary || !categories) {
+if (!actions || !history || !balance || !salary || !categories || !dateRange) {
 	throw new Error('Root elements not found');
 }
 
@@ -28,6 +29,7 @@ const calculator = new Calculator({
 		balance,
 		salary,
 		categories,
+		dateRange,
 	},
 });
 

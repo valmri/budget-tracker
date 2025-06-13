@@ -101,6 +101,10 @@ export class LocalStorage implements StorageInterface {
 		this.#save();
 	}
 
+	filterTransactionsByMonth(year: number, month: number): Array<Transaction> {
+		// to implement...
+	}
+
 	setSalary(salary: number): void {
 		this.#salary = salary;
 		this.#save();

@@ -66,6 +66,10 @@ export class InMemoryStorage implements StorageInterface {
 		this.#transactions = this.#transactions.map((t) => callback(t));
 	}
 
+	filterTransactionsByMonth(year: number, month: number): Array<Transaction> {
+		// to implement...
+	}
+
 	setSalary(salary: number) {
 		this.#salary = salary;
 	}

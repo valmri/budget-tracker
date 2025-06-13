@@ -5,7 +5,7 @@ interface ButtonProps {
 	action: 'primary' | 'danger' | 'secondary';
 	size?: 'md' | 'sm' | 'lg';
 	content?: string;
-	icon?: 'edit' | 'delete' | 'x';
+	icon?: 'edit' | 'delete' | 'x' | 'arrow-left' | 'arrow-right';
 	className?: string;
 	events?: Partial<Record<keyof HTMLElementEventMap, (...args: Array<any>) => void>>;
 }

@@ -36,7 +36,7 @@ export function SalaryForm(props: SalaryFormProps) {
 		event.currentTarget.closest('form')?.reset();
 	}
 
-	return createElement('form', { className: 'flex items-end gap-4' }, { submit: handleSubmit }, [
+	return createElement('form', { className: 'flex items-end gap-2' }, { submit: handleSubmit }, [
 		ModalField({
 			inputType: 'number',
 			name: 'amount',

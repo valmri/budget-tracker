@@ -19,6 +19,8 @@ export interface StorageInterface {
 
 	mapTransactions(callback: (transaction: Transaction) => Transaction): void;
 
+	filterTransactionsByMonth(year: number, month: number): Array<Transaction>;
+
 	transactionsCount(): number;
 
 	setSalary(salary: number): void;

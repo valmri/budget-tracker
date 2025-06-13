@@ -1,5 +1,17 @@
 # Budget tracker
 
+## Challenge
+
+Vous devez mettre en place une gestion de suivi mois par mois.
+Par rapport à l'interface actuelle, les éléments suivants doivent être implémentés :
+
+- Afficher le nom du mois en cours (par exemple : "Janvier 2023")
+- Afficher uniquement la liste des dépenses et recettes du mois en cours
+- Afficher uniquement les soldes du mois en cours (balance / dépenses / recettes)
+- Afficher 2 petits boutons pour passer de mois en mois (précédent / suivant)
+
+**Date limite: mercredi 2 juillet 2025 12h30**
+
 ## Fonctionnalités
 
 - [x] Ajouter son salaire net

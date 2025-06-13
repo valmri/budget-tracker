@@ -5,6 +5,7 @@ import type { ChangeRateConverter } from './change_rate_converter';
 import { Balance } from '../components/balance';
 import { Button } from '../components/button';
 import { Categories } from '../components/categories';
+import { DateRange } from '../components/date_range';
 import { Modal } from '../components/modal';
 import { SalaryForm } from '../components/salary';
 import { OperationsTable } from '../components/table';
@@ -20,6 +21,7 @@ interface CalculatorProps {
 		balance: HTMLElement;
 		salary: HTMLElement;
 		categories: HTMLElement;
+		dateRange: HTMLInputElement;
 	};
 }
 
@@ -30,7 +32,10 @@ export class Calculator {
 	readonly #historyContainer: HTMLElement;
 	readonly #balanceContainer: HTMLElement;
 	readonly #salaryContainer: HTMLElement;
+	readonly #dateRangeContainer: HTMLInputElement;
 	readonly #categoriesContainer: HTMLElement;
+
+	#selectedMonth: { year: number; month: number };
 
 	constructor(props: CalculatorProps) {
 		this.#storage = props.storage;
@@ -40,6 +45,8 @@ export class Calculator {
 		this.#balanceContainer = props.dom.balance;
 		this.#salaryContainer = props.dom.salary;
 		this.#categoriesContainer = props.dom.categories;
+		this.#dateRangeContainer = props.dom.dateRange;
+		this.#selectedMonth = { year: new Date().getFullYear(), month: new Date().getMonth() };
 	}
 
 	get storage(): StorageInterface {
@@ -50,7 +57,16 @@ export class Calculator {
 		return this.#changeRateConverter;
 	}
 
-	compute() {
+	get selectedMonth() {
+		return this.#selectedMonth;
+	}
+
+	set selectedMonth(value: { year: number; month: number }) {
+		this.#selectedMonth = value;
+		// maybe we should trigger a re-render here?
+	}
+
+	compute(transactions: Array<Transaction>) {
 		const output: {
 			expense: Record<Currency, number>;
 			income: Record<Currency, number>;
@@ -64,7 +80,7 @@ export class Calculator {
 		output.balance.EUR = this.#storage.getSalary();
 		output.balance.USD = this.#changeRateConverter.convert(this.#storage.getSalary(), 'EUR');
 
-		for (const transaction of this.#storage.listTransactions()) {
+		for (const transaction of transactions) {
 			output[transaction.type][transaction.currency] = (output[transaction.type][transaction.currency]) + transaction.amount;
 
 			const otherCurrency = transaction.currency === 'EUR' ? 'USD' : 'EUR';
@@ -183,9 +199,11 @@ export class Calculator {
 		}
 	}
 
-	renderOperationsTable(): void {
+	renderOperationsTable(filters?: { year: number; month: number }): void {
 		this.#historyContainer.replaceChildren(OperationsTable({
-			transactions: this.#storage.listTransactions(),
+			transactions: filters
+				? this.#storage.filterTransactionsByMonth(filters.year, filters.month)
+				: this.#storage.listTransactions(),
 			onTransactionUpdate: this.handleTransactionUpdate.bind(this),
 			onTransactionDelete: this.handleTransactionDelete.bind(this),
 			categories: this.#storage.listCategories().map(category => [category.id, category.name]),
@@ -193,8 +211,7 @@ export class Calculator {
 	}
 
 	renderActions(): void {
-		this.#actionsContainer.innerHTML = '';
-		this.#actionsContainer.append(Modal({
+		this.#actionsContainer.replaceChildren(Modal({
 			id: 'add-transaction-modal',
 			modalTitle: 'Ajouter une opération',
 			onFormSubmit: this.handleCreateTransaction.bind(this),
@@ -203,8 +220,21 @@ export class Calculator {
 		}));
 	}
 
-	renderBalance(): void {
-		const balance = this.compute();
+	renderDateRange(): void {
+		this.#dateRangeContainer.replaceChildren(DateRange({
+			selectedMonth: this.#selectedMonth,
+			onPeriodChange: (year: number, month: number) => {
+				/// maybe there is something to do here?
+			},
+		}));
+	}
+
+	renderBalance(filters?: { year: number; month: number }): void {
+		const balance = this.compute(filters
+			? this.#storage.filterTransactionsByMonth(filters.year, filters.month)
+			: this.#storage.listTransactions()
+		);
+
 		this.#balanceContainer.replaceChildren(Balance({
 			totalBalance: balance.balance,
 			totalExpenses: balance.expense,
@@ -229,11 +259,12 @@ export class Calculator {
 		}))
 	}
 
-	render(): void {
+	render(filters?: { year: number; month: number }): void {
 		this.renderActions();
 		this.renderSalary();
-		this.renderOperationsTable();
-		this.renderBalance();
+		this.renderOperationsTable(filters);
+		this.renderBalance(filters);
 		this.renderCategories();
+		this.renderDateRange();
 	}
 }
