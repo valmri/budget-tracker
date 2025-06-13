@@ -11,10 +11,10 @@ export class LocalStorage implements StorageInterface {
 	}
 
 	#save() {
-		JSON.stringify({
+		window.localStorage.setItem(this.#storageKey, JSON.stringify({
 			salary: this.#salary,
 			transactions: this.#transactions.map((transaction) => transaction.serialize()),
-		});
+		}));
 	}
 
 	#loadFromStorage(): void {
