@@ -31,7 +31,7 @@ export class LocalStorage implements StorageInterface {
 		}
 
 		if ('transactions' in decoded) {
-			decoded.transactions.map((item: TransactionOmitted) => new Transaction(item));
+			this.#transactions = decoded.transactions.map((item: TransactionOmitted) => new Transaction(item));
 		}
 	}
 

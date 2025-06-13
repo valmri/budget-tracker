@@ -4,42 +4,26 @@ import '@fontsource-variable/geist-mono';
 import './style.css';
 import { Calculator } from './compute/calculator';
 import { ChangeRateConverter } from './compute/change_rate_converter';
-import { InMemoryStorage } from './storage/in_memory_storage';
+import { LocalStorage } from './storage/local_storage';
 
-const root = document.querySelector<HTMLElement>('#root');
+const actions = document.querySelector<HTMLElement>('#actions');
+const history = document.querySelector<HTMLElement>('#history');
+const balance = document.querySelector<HTMLElement>('#balance');
 
-if (!root) {
-	throw new Error('Root element not found');
+if (!actions || !history || !balance) {
+	throw new Error('Root elements not found');
 }
 
-const calculator = new Calculator(new InMemoryStorage(), new ChangeRateConverter());
+const calculator = new Calculator({
+	storage: new LocalStorage(),
+	changeRateConverter: new ChangeRateConverter(),
+	dom: {
+		actions,
+		history,
+		balance,
+	},
+});
 
 await calculator.changeRateConverter.fetchRates();
 
-const t1 = calculator.storage.createTransaction({
-	amount: 25,
-	type: 'expense',
-	label: 'netflix',
-	currency: 'EUR',
-	operatedAt: new Date(2025, 6, 1),
-});
-
-console.log({ conversionEurDol: calculator.changeRateConverter.convert(t1.amount, t1.currency) });
-
-const t2 = calculator.storage.createTransaction({
-	amount: 30,
-	type: 'expense',
-	label: 'youtube',
-	currency: 'USD',
-	operatedAt: new Date(2025, 6, 3),
-});
-
-console.log({ conversionDolEur: calculator.changeRateConverter.convert(t2.amount, t1.currency) });
-
-calculator.storage.createTransaction({
-	amount: 99,
-	type: 'income',
-	label: 'nord vpn',
-	currency: 'EUR',
-	operatedAt: new Date(2025, 6, 9),
-});
+calculator.render();

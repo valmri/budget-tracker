@@ -1,11 +1,11 @@
 import { createElement, createSVGElement } from '../renderer/utils';
 import { ModalForm } from './modal_form';
 
-function handleFormSubmit(values: FormData) {
-	for (const value of values) console.log(value);
+interface ModalProps {
+	onFormSubmit(values: FormData): void;
 }
 
-export function Modal() {
+export function Modal(props: ModalProps) {
 	function handleOpenModal(event: MouseEvent) {
 		event.preventDefault();
 		modal.showModal();
@@ -13,6 +13,12 @@ export function Modal() {
 
 	function handleCloseModal(event: MouseEvent) {
 		event.preventDefault();
+		modal.querySelector('form')?.reset();
+		modal.close();
+	}
+
+	function handleFormSubmit(values: FormData) {
+		props.onFormSubmit(values);
 		modal.close();
 	}
 

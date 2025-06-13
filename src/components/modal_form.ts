@@ -1,5 +1,7 @@
+import type { Currency, TransactionType } from '../models/transaction';
+
 import { createElement } from '../renderer/utils';
-import { ModalField } from './modal_input';
+import { ModalField, ModalSelect } from './modal_input';
 
 interface Props {
 	onSubmit(values: FormData): void;
@@ -11,6 +13,7 @@ export function ModalForm(props: Props) {
 
 		if (event.currentTarget instanceof HTMLFormElement) {
 			props.onSubmit(new FormData(event.currentTarget));
+			event.currentTarget.reset();
 		}
 	}
 
@@ -23,9 +26,9 @@ export function ModalForm(props: Props) {
 			submit: handleSubmit,
 		},
 		[
-			createElement('div', { className: 'grid gap-1' }, {}, [
+			createElement('div', { className: 'grid gap-4' }, {}, [
 				ModalField({
-					inputType: 'datetime-local',
+					inputType: 'date',
 					name: 'operation-date',
 					label: "Date de l'opération",
 					required: true,
@@ -41,6 +44,18 @@ export function ModalForm(props: Props) {
 					name: 'operation-amount',
 					label: 'Montant',
 					required: true,
+				}),
+				ModalSelect({
+					name: 'operation-type',
+					label: 'Type',
+					required: true,
+					options: ['income', 'expense'] satisfies Array<TransactionType>,
+				}),
+				ModalSelect({
+					name: 'operation-currency',
+					label: 'Devise',
+					required: true,
+					options: ['USD', 'EUR'] satisfies Array<Currency>,
 				}),
 				createElement(
 					'button',
